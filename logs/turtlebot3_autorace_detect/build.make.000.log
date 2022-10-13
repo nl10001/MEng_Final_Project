@@ -1,0 +1,11 @@
+[35m[1mScanning dependencies of target turtlebot3_autorace_detect_gencfg[0m
+[ 33%] [34m[1mGenerating dynamic reconfigure files from cfg/DetectLaneParams.cfg: /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectLaneParamsConfig.h /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/lib/python2.7/dist-packages/turtlebot3_autorace_detect/cfg/DetectLaneParamsConfig.py[0m
+Generating reconfiguration files for DetectLaneParams in turtlebot3_autorace_construction_camera
+Wrote header file in /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectLaneParamsConfig.h
+[ 66%] [34m[1mGenerating dynamic reconfigure files from cfg/DetectLevelParams.cfg: /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectLevelParamsConfig.h /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/lib/python2.7/dist-packages/turtlebot3_autorace_detect/cfg/DetectLevelParamsConfig.py[0m
+[100%] [34m[1mGenerating dynamic reconfigure files from cfg/DetectTrafficLightParams.cfg: /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectTrafficLightParamsConfig.h /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/lib/python2.7/dist-packages/turtlebot3_autorace_detect/cfg/DetectTrafficLightParamsConfig.py[0m
+Generating reconfiguration files for DetectLevelParams in turtlebot3_autorace_detect
+Wrote header file in /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectLevelParamsConfig.h
+Generating reconfiguration files for DetectTrafficLightParams in turtlebot3_autorace_detect
+Wrote header file in /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_detect/include/turtlebot3_autorace_detect/DetectTrafficLightParamsConfig.h
+[100%] Built target turtlebot3_autorace_detect_gencfg

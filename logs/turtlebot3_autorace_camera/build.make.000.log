@@ -1,8 +1,0 @@
-[35m[1mScanning dependencies of target turtlebot3_autorace_camera_gencfg[0m
-[ 50%] [34m[1mGenerating dynamic reconfigure files from cfg/ImageProjectionParams.cfg: /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/include/turtlebot3_autorace_camera/ImageProjectionParamsConfig.h /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/lib/python2.7/dist-packages/turtlebot3_autorace_camera/cfg/ImageProjectionParamsConfig.py[0m
-Generating reconfiguration files for ImageProjectionParams in turtlebot3_autorace_camera
-[100%] [34m[1mGenerating dynamic reconfigure files from cfg/ImageCompensationParams.cfg: /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/include/turtlebot3_autorace_camera/ImageCompensationParamsConfig.h /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/lib/python2.7/dist-packages/turtlebot3_autorace_camera/cfg/ImageCompensationParamsConfig.py[0m
-Wrote header file in /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/include/turtlebot3_autorace_camera/ImageProjectionParamsConfig.h
-Generating reconfiguration files for ImageCompensationParams in turtlebot3_autorace_camera
-Wrote header file in /home/neil/catkin_ws/devel/.private/turtlebot3_autorace_camera/include/turtlebot3_autorace_camera/ImageCompensationParamsConfig.h
-[100%] Built target turtlebot3_autorace_camera_gencfg

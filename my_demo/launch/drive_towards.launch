@@ -1,0 +1,5 @@
+<launch>
+  <node name="aruco_board" pkg="my_demo" type="detect_board.py" output="screen"/>
+  <node name="Drive_to_Aruco" pkg="my_demo" type="drive_towards.py" output="screen"/>
+  
+</launch>

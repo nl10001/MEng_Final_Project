@@ -1,5 +1,0 @@
-cv_testing
-/home/neil/catkin_ws/devel/.private/cv_testing/cmake.lock /home/neil/catkin_ws/devel/./cmake.lock
-/home/neil/catkin_ws/devel/.private/cv_testing/lib/pkgconfig/cv_testing.pc /home/neil/catkin_ws/devel/lib/pkgconfig/cv_testing.pc
-/home/neil/catkin_ws/devel/.private/cv_testing/share/cv_testing/cmake/cv_testingConfig-version.cmake /home/neil/catkin_ws/devel/share/cv_testing/cmake/cv_testingConfig-version.cmake
-/home/neil/catkin_ws/devel/.private/cv_testing/share/cv_testing/cmake/cv_testingConfig.cmake /home/neil/catkin_ws/devel/share/cv_testing/cmake/cv_testingConfig.cmake

@@ -1,8 +1,0 @@
-prefix=/home/neil/catkin_ws/devel
-
-Name: cv_testing
-Description: Description of cv_testing
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

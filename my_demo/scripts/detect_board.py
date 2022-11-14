@@ -5,15 +5,13 @@ import numpy as np
 import argparse
 import cv2
 import sys
-import yaml
+
 import math
 from std_msgs.msg import Float32
 from sensor_msgs.msg import Image # Image is the message type
 from sensor_msgs.msg import CompressedImage # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
 
-#with open('/home/neil/Documents/calibration_cam/cal.yml', 'r') as file:
-#	camera_params = yaml.safe_load(filc
 class ArucoBoard:
 	def __init__(self):
 		rospy.init_node('aruco_board', anonymous=True)
@@ -22,7 +20,6 @@ class ArucoBoard:
 		self.dist_pub = rospy.Publisher('/aruco_dist', Float32, queue_size=10)
 		self.tb_angle_pub = rospy.Publisher('/tb_angle', Float32, queue_size=10)
 		self.aruco_angle_pub = rospy.Publisher('/aruco_angle', Float32, queue_size=10)
- 		self.averages = []
 		self.rate = rospy.Rate(10)
 
 	def detect_board(self, data):
@@ -65,9 +62,6 @@ class ArucoBoard:
 				_, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, board, cameraMatrix, distCoeffs)
 
 				current_frame = cv2.aruco.drawAxis(current_frame, cameraMatrix, distCoeffs, rvec, tvec, 0.1)
-				
-				#self.averages.append(rvec[2])
-				
 				self.dist_pub.publish(tvec[2])
 				self.aruco_angle_pub.publish(rvec[2])
 				#self.rate.sleep()
@@ -99,23 +93,17 @@ class ArucoBoard:
 				if cX > 320:
 					angle = -angle
 
-				
-				
 				self.tb_angle_pub.publish(angle)
-				#self.rate.sleep()
 					
 		# Display our image
 		cv2.imshow('current_frame', current_frame)
 			
 		cv2.waitKey(1)
-	
-	
 
 	def shutdownhook(self):
 		rospy.loginfo("Shutdown")
 		cv2.destroyAllWindows()
 
-  
 if __name__ == '__main__':
 	x = ArucoBoard()
 	try:

@@ -2,20 +2,18 @@
 
 import rospy
 import numpy as np
-import argparse
 import cv2
-import sys
-import yaml
 import math
+import basic_commands as bc
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry 
 from std_msgs.msg import Float32
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
-from sensor_msgs.msg import Image # Image is the message type
-from sensor_msgs.msg import CompressedImage # Image is the message type
+from tf.transformations import euler_from_quaternion, quaternion_from_euler # Package to convert from quaternions to RPY
+from sensor_msgs.msg import CompressedImage # CompressedImage is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
 
 class ActionCards:
+	# Constructor to intialise the Class
 	def __init__(self):
 		rospy.init_node('action_cards')
 		rospy.on_shutdown(self.shutdownhook)
@@ -24,6 +22,7 @@ class ActionCards:
 		self.odom_sub = rospy.Subscriber('/odom', Odometry, self.get_rotation)
 		self.odom = Odometry()
 		self.vel = Twist()
+		self.cmd_tb3 = basic_commands.BasicCommands()
 		self.corners = []
 		self.ids = 0
 		self.yaw = 0
@@ -37,6 +36,7 @@ class ActionCards:
 		(roll, pitch, self.yaw) = euler_from_quaternion(orientation_list)
 
 	def detect(self,data):
+		# Camera matrix and distortion coefficients from camera calibration
 		cameraMatrix = np.float32([[719.935376, 0, 327.90201], [0, 724.8456159999999, 166.533253], [0, 0, 1.0]]).reshape(3,3)
 		distCoeffs = np.float32([0.260116, -0.954027, -0.017563, -0.009861, 0]).reshape(1,5)
 		
@@ -86,65 +86,32 @@ class ActionCards:
 						
 			current_frame = cv2.circle(current_frame, (320,180), radius=2, color=(0, 0, 255), thickness=-1)
 
-			#print("[INFO] ArUco marker Orientation: {} degrees".format(angle))
 		
-		# show the output image
-		#cv2.imshow("Image", current_frame)
-
-		#cv2.waitKey(1)
-		
+	# Function to choose which action is executed based on visual input in the form of ArUco marker ID	
 	def actions(self):
 		try:			
-			while not rospy.is_shutdown():		
+			# Run until shutdown
+			while not rospy.is_shutdown():	
+				# Make sure there is a marker detected	
 				if len(self.corners) > 0:
 					if self.ids == 0:
 						print("hi")
 						rospy.Rate(0.5).sleep()
 					elif self.ids == 1:
-						self.rotateDegrees(0.5, 180, 'left')
+						self.cmd_tb3.RotateDegrees(0.5, 180, 'left')
 					elif self.ids == 2:
-						self.move(0.1, 0.1)	
+						self.cmd_tb3.Move(0.1, 0.1)	
 				else:
+					# If no markers detected output info to terminal 
 					rospy.loginfo("No markers detected")
 					rospy.Rate(0.5).sleep()
 		except rospy.ROSInterruptException:
 			pass
-	
-	def rotateDegrees(self, angular_vel, degrees, direction):
-		# Setting the angle to turn by specified degrees
-		angle = np.radians(degrees)
-		# Setting the angular velocity to the specified velocity
-		relative_angle = angle
-		if direction == "left":
-			self.vel.angular.z = angular_vel
-		elif direction == "right":
-			self.vel.angular.z = -angular_vel
-			# Setting the current time for distance calculus
-		t0 = rospy.Time.now().to_sec()
-		current_angle = 0
-		while current_angle < relative_angle:
-			self.twist_pub.publish(self.vel)
-			t1 = rospy.Time.now().to_sec()
-			current_angle = np.abs(angular_vel) * (t1 - t0)
-			self.rate.sleep()
 
-		# Forcing Turtlebot to stop
-		self.vel.angular.z = 0
-		self.twist_pub.publish(self.vel)
-		self.rate.sleep()
-
-	def move(self, linear_vel, distance):
-		curr = self.odom.pose.pose.position.x
-		while self.odom.pose.pose.position.x < (curr + distance):
-			self.vel.linear.x = linear_vel
-			self.twist_pub.publish(self.vel)
-			self.rate.sleep()
-		self.vel.linear.x = 0
-		self.twist_pub.publish(self.vel)
-		self.rate.sleep()
-
+	# Shutdown hook which runs when rospy shuts down (when ctrl+c is hit)
 	def shutdownhook(self):
-		print("ending...")
+		# Stop the robot, log the shutdown and close any OpenCV windows
+		rospy.loginfo("Shutdown")
 		cv2.destroyAllWindows()
 		self.ctrl_c = True
 		self.vel.angular.z = 0
@@ -153,8 +120,10 @@ class ActionCards:
 		self.rate.sleep()	
 
 if __name__ == '__main__':
+	# Create instance of ActionCards
 	x = ActionCards()	
 	try:
+		# Run the method actions() and then close all windows opened by OpenCV
 		x.actions()
 		cv2.destroyAllWindows()
 	except rospy.ROSInterruptException:

@@ -1,8 +1,0 @@
-<launch>
-  <node
-    pkg="cv_basics"
-    type="webcam_sub.py"
-    name="webcam_sub"
-    output="screen"
-  />
-</launch>

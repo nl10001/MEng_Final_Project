@@ -1,4 +1,0 @@
-<launch>
-  <node name="aruco_sub_py" pkg="cv_testing" type="detect.py" output="screen"/>
-  <node name="Drive_to_Aruco" pkg="cv_testing" type="drive_towards.py" output="screen"/>
-</launch>

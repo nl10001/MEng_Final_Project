@@ -31,6 +31,7 @@ class TurtleBot3(object):
 		self.tb_angle = 0
 		self.odom = Odometry()
 		self.yaw = 0
+		self.finished = 0
 		rospy.loginfo("Starting...")
 		self.rate = rospy.Rate(10)
 
@@ -45,7 +46,6 @@ class TurtleBot3(object):
 
 	def get_odom(self, msg):
 		self.odom = msg
-		global roll, pitch, yaw
 		orientation_q = msg.pose.pose.orientation
 		orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
 		(roll, pitch, self.yaw) = euler_from_quaternion(orientation_list)
@@ -54,29 +54,41 @@ class TurtleBot3(object):
 		self.lasers = msg.ranges
 	
 	def drive_towards(self, aruco_stop_dist, reverse_stop_dist):
+		# Execute lineup if the approach angle is greater than 23 degrees
 		if (self.aruco_angle > 0.4) or (self.aruco_angle <-0.4):
 			self.lineupBasic()
 		else:
 			pass
 		while not rospy.is_shutdown():
-			# print(self.aruco_dist)
+			# Find the turn direction towards the marker
 			turnDirection = self.findTurnDirection()
+			# If finished is at 0 then enter
 			if self.finished == 0:
+				# Check if current distance to marker is greater than user specified stopping distance
 				if self.aruco_dist > aruco_stop_dist:
-					self.cmd_tb3.RotateDegrees(0.05, np.abs(self.tb_angle), turnDirection)
-					self.vel.linear.x = 0.1
-					self.twist_pub.publish(self.vel)
-					self.rate.sleep()
+					# Turn towards marker if needed and drive forwards towards marker
+					if turnDirection is not "straight":
+						self.cmd_tb3.RotateDegrees(0.05, np.abs(self.tb_angle), turnDirection)
+					else:
+						self.vel.linear.x = 0.1
+						self.twist_pub.publish(self.vel)
+						self.rate.sleep()
+				# Otherwise stop, turn towards centre of marker and do 180 degree turn
 				else:
 					self.vel.linear.x = 0
 					self.twist_pub.publish(self.vel)
 					self.rate.sleep()
 					self.cmd_tb3.RotateDegrees(0.1, np.abs(self.tb_angle), turnDirection)
 					self.cmd_tb3.RotateDegrees(0.1, 180, "right")
+					# Increment finished
 					self.finished = self.finished + 1
+			# If previous loop entered and completed
 			elif self.finished == 1:
+				# Reverse to set distance from wall (0.2 minimum)
 				self.reverse(0.05, reverse_stop_dist)
+				# Increment finished again
 				self.finished = self.finished + 1
+			# If finished is not 1 or 0 then end
 			else:
 				print("Finished")
 				break
@@ -84,12 +96,14 @@ class TurtleBot3(object):
 				
 
 	def findTurnDirection(self):
-		if self.tb_angle > 1.5:
+		if self.tb_angle > 1:
 			# turn left
 			return "left"
-		elif self.tb_angle < -1.5:
+		elif self.tb_angle < -1:
 			# turn right
 			return "right"
+		else:
+			return "straight"
 
 	#function which reverses at a set speed to a set distance using lidar proximity	taking
 	#taking into account the length of the robot
@@ -115,7 +129,7 @@ class TurtleBot3(object):
 		else:
 			dist = math.sin(np.abs(ar_angle))*(ar_dist/math.sin(angle)) - 0.65
 		print(dist)
-		self.cmd_tb3.Move(0.05, dist)
+		self.cmd_tb3.odom_move(0.05, dist)
 		self.vel.linear.x = 0
 		self.twist_pub.publish(self.vel)
 		self.rate.sleep()
@@ -132,7 +146,7 @@ class TurtleBot3(object):
 			angle = np.radians(135 - np.abs(ar_angle))
 			dist = math.sin(np.abs(ar_angle))*(ar_dist/math.sin(angle))
 			print(dist)
-			self.cmd_tb3.Move(0.1, dist)
+			self.cmd_tb3.odom_move(0.1, dist)
 			self.vel.linear.x = 0
 			self.twist_pub.publish(self.vel)
 			self.rate.sleep()
@@ -144,44 +158,55 @@ class TurtleBot3(object):
 			angle = np.radians(135 - np.abs(ar_angle))
 			dist = math.sin(np.abs(ar_angle))*(ar_dist/math.sin(angle))
 			print(dist)
-			self.cmd_tb3.Move(0.1, dist)
+			self.cmd_tb3.odom_move(0.1, dist)
 			self.vel.linear.x = 0
 			self.twist_pub.publish(self.vel)
 			self.rate.sleep()
 			self.cmd_tb3.RotateDegrees(0.1, 60, "left")
 			self.cmd_tb3.RotateDegrees(0.1, np.abs(self.tb_angle), self.findTurnDirection())
-			
+	
 	def shutdownhook(self):
 		rospy.loginfo("Shutdown")
 		self.vel.angular.z = 0
 		self.vel.linear.x = 0
 		self.twist_pub.publish(self.vel)
-		self.rate.sleep()
-
+		self.rate.sleep()		
 
 if __name__ == '__main__':
+	# Create instance of turtlebot3
 	x = TurtleBot3()
 	
+	# Add path to arm launch file
 	path = "/home/neil/catkin_ws/src/my_demo/launch/my_arm_launch.launch"
-	#cmd = bc.BasicCommands()
+	# Create instance of basic commands for moving and turning
+	cmd = bc.BasicCommands()
+	
+	# Configuring roslaunch	
 	uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
 	roslaunch.configure_logging(uuid)
 	launch = roslaunch.parent.ROSLaunchParent(uuid, [path])
 	
-	
 	try:
+		# User input for stopping distances
 		aruco_stop_dist = input("Enter an distance to stop from the marker in metres:")
 		reverse_stop_dist = input("Enter an distance to stop from the wall in metres:")
+		
+		# Testing #
 		#x.lineupBasic()
-		#x.move(0.1,1)
-		#cmd.RotateDegrees(0.5, 90, "left")
+		#cmd.RotateDegrees(0.1, 90, "right")
+		#cmd.RotateDegrees(0.1, 180, "left")
+		#cmd.test_turn(0.1, 270, "left")
+		#cmd.test_turn(0.1, 90, "right")
+		#cmd.odom_move(0.1,0.3)
+
+		# Run main drive towards function
 		x.drive_towards(aruco_stop_dist, reverse_stop_dist)
+		# Once finished log in terminal that arm is starting and roslaunch launch file for arm
+		rospy.loginfo("started arm")
 		launch.start()
-		rospy.loginfo("started")
 		rospy.spin()
-		#x.reverse(0.06,0.3)
-		#x.lineup1()
 
 	except rospy.ROSInterruptException:
+		# Once ctrl-c pressed then shutdown arm launch 
 		launch.shutdown()
 		pass

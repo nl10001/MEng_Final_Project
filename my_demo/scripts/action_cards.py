@@ -30,7 +30,6 @@ class ActionCards:
 
 	def get_rotation(self, msg):
 		self.odom = msg
-		global roll, pitch, yaw
 		orientation_q = msg.pose.pose.orientation
 		orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
 		(roll, pitch, self.yaw) = euler_from_quaternion(orientation_list)
@@ -86,6 +85,7 @@ class ActionCards:
 						
 			current_frame = cv2.circle(current_frame, (320,180), radius=2, color=(0, 0, 255), thickness=-1)
 
+#/
 		
 	# Function to choose which action is executed based on visual input in the form of ArUco marker ID	
 	def actions(self):

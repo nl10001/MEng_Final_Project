@@ -7,6 +7,15 @@ import math
 from std_msgs.msg import UInt8MultiArray
 from sensor_msgs.msg import Joy
 
+# GUIDE TO ARM JOINT LIMITS
+#Step Delay: a milliseconds delay between the movement of each servo. Using 10ms.
+#M1=base degrees. Allowed values from 0 to 180 degrees
+#M2=shoulder degrees. Allowed values from 15 to 165 degrees
+#M3=elbow degrees. Allowed values from 0 to 180 degrees
+#M4=wrist vertical degrees. Allowed values from 0 to 180 degrees
+#M5=wrist rotation degrees. Allowed values from 0 to 180 degrees
+#M6=gripper degrees. Allowed values from 10 to 73 degrees. 10: the toungue is open, 73: the gripper is closed.
+
 class Arm(object):
 	def __init__(self):
 		rospy.init_node('arm')
@@ -119,7 +128,7 @@ class Arm(object):
 	# Function for moving the arm automatically
 	def move_automatic(self):
 		#Right
-		self.arm_array.data = [180,90,90,90,110,73]
+		self.arm_array.data = [180,90,90,90,110,10]
 		self.arm_pub.publish(self.arm_array)
 		self.rate.sleep()
 		rospy.sleep(3)
@@ -159,27 +168,28 @@ class Arm(object):
 		self.rate.sleep()
 		rospy.sleep(3)
 		#New
-		self.arm_array.data = [90,15,0,170,110,73]
+		self.arm_array.data = [90,15,0,160,110,73]
 		self.arm_pub.publish(self.arm_array)
 		self.rate.sleep()
 		rospy.sleep(3)
 		#LT
-		self.arm_array.data = [90,15,0,170,110,10]
+		self.arm_array.data = [90,15,0,160,110,10]
 		self.arm_pub.publish(self.arm_array)
 		self.rate.sleep()
 		rospy.sleep(3)
 
 	# Test function for getting the right arm poses 	
 	def try_me(self):
-		self.arm_array.data = [90,90,90,90,110,73]
-		self.arm_pub.publish(self.arm_array)
-		self.rate.sleep()	
+		while not rospy.is_shutdown():
+			self.arm_array.data = [90,15,0,160,110,10]
+			self.arm_pub.publish(self.arm_array)
+			self.rate.sleep()	
 		
 	# Shutdown hook which runs when ctrl+c is pressed
 	def shutdownhook(self):
 		# Log shutdown in terminal and move arm back to default pose
 		rospy.loginfo("Shutdown")
-		self.arm_array.data = [90,90,90,90,110,73]
+		self.arm_array.data = [90,90,90,90,110,10]
 		self.arm_pub.publish(self.arm_array)
 		self.rate.sleep()
 		self.ctrl_c = True
@@ -187,21 +197,22 @@ class Arm(object):
 if __name__ == '__main__':
 	# Create instance of Arm
 	x = Arm()
-	rospy.sleep(5)
+	# Wait 10 seconds to allow rosserial to connect
+	rospy.sleep(10)
 	try:
 		# Take user input to determine mode of operation
-
-		#config = raw_input("Please enter a mode of operation, automatic or manual:")
-		config="automatic"	
+		config = raw_input("Please enter a mode of operation, automatic or manual:")
+		#config = "automatic"	
 		if config == "manual":
 			x.move_manual()
 		if config == "automatic":
 			x.move_automatic()
+			#x.try_me()
 			rospy.loginfo("Finished")
 			x.shutdownhook()
 		else:
 			rospy.loginfo("Mode not recognised, please check spelling.")
-			#x.try_m()	
+				
 		#rospy.spin()
 
 	except rospy.ROSInterruptException:

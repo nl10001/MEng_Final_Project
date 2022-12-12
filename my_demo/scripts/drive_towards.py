@@ -93,8 +93,7 @@ class TurtleBot3(object):
 				print("Finished")
 				break
 
-				
-
+	# Returns the direction to turn to face the marker
 	def findTurnDirection(self):
 		if self.tb_angle > 1:
 			# turn left
@@ -105,7 +104,7 @@ class TurtleBot3(object):
 		else:
 			return "straight"
 
-	#function which reverses at a set speed to a set distance using lidar proximity	taking
+	# Function which reverses at a set speed to a set distance using lidar proximity
 	#taking into account the length of the robot
 	def reverse(self, linear_vel, distance):
 		while self.lasers[175] > (distance + 0.1):
@@ -117,6 +116,7 @@ class TurtleBot3(object):
 		self.twist_pub.publish(self.vel)
 		self.rate.sleep()
 
+	# Function which does a basic trigonometry calculation to line the robot up with the marker better
 	def lineupBasic(self):
 		self.cmd_tb3.RotateDegrees(0.05, np.abs(self.tb_angle), self.findTurnDirection())
 		ar_angle = self.aruco_angle
@@ -135,35 +135,6 @@ class TurtleBot3(object):
 		self.rate.sleep()
 		self.cmd_tb3.RotateDegrees(0.05, 60, "left")
 		self.cmd_tb3.RotateDegrees(0.05, np.abs(self.tb_angle), self.findTurnDirection())
-
-	def lineupAdaptive(self):
-		self.cmd_tb3.RotateDegrees(0.1, np.abs(self.tb_angle), self.findTurnDirection())
-		ar_angle = self.aruco_angle
-		ar_dist = self.aruco_dist
-		if ar_angle > 0:
-			self.cmd_tb3.RotateDegrees(0.1, 45, "left")
-		
-			angle = np.radians(135 - np.abs(ar_angle))
-			dist = math.sin(np.abs(ar_angle))*(ar_dist/math.sin(angle))
-			print(dist)
-			self.cmd_tb3.odom_move(0.1, dist)
-			self.vel.linear.x = 0
-			self.twist_pub.publish(self.vel)
-			self.rate.sleep()
-			self.cmd_tb3.RotateDegrees(0.1, 60, "right")
-			self.cmd_tb3.RotateDegrees(0.1, np.abs(self.tb_angle), self.findTurnDirection())
-		else:
-			self.cmd_tb3.RotateDegrees(0.1, 45, "right")
-		
-			angle = np.radians(135 - np.abs(ar_angle))
-			dist = math.sin(np.abs(ar_angle))*(ar_dist/math.sin(angle))
-			print(dist)
-			self.cmd_tb3.odom_move(0.1, dist)
-			self.vel.linear.x = 0
-			self.twist_pub.publish(self.vel)
-			self.rate.sleep()
-			self.cmd_tb3.RotateDegrees(0.1, 60, "left")
-			self.cmd_tb3.RotateDegrees(0.1, np.abs(self.tb_angle), self.findTurnDirection())
 	
 	def shutdownhook(self):
 		rospy.loginfo("Shutdown")
